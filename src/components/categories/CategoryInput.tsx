@@ -23,7 +23,7 @@ const CategoryInput = ({
     rounded-xl
     border-2
     p-4
-    flex
+            flex
     flex-col
     gap-3
     hover:border-orange-500
