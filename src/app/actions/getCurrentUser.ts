@@ -1,38 +1,38 @@
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { getServerSession } from "next-auth/next"
 import prisma from '@/helpers/prismadb';
 
-export async function getSession(){
-    return await getServerSession(authOptions);
-
+export async function getSession() {
+    return await getServerSession(authOptions)
 }
 
-export default async function getCurrentUser(){
-    try{
+export default async function getCurrentUser() {
+    try {
         const session = await getSession();
-        if(!session?.user?.email){
+
+        if (!session?.user?.email) {
             return null;
         }
 
-        const currentUser = await prisma?.user.findUnique({
-            where : {
-                email : session.user.email
+        // 이메일을 이용해서 데이터베이스에서 요청 정보 찾은 후 가져오기 
+        const currentUser = await prisma.user.findUnique({
+            where: {
+                email: session.user.email as string,
             }
-        })
+        });
 
-        if(!currentUser){
-            console.log('현재 유저 없음')
+        if (!currentUser) {
             return null;
         }
-        return currentUser
 
-        //13버전 이전
-        // return {...currentUser,
-        //     createdAt : currentUser.createdAt.toISOString(),
-        //     updatedAt : currentUser.updatedAt.toISOString()}
-
-    }catch(error){
-        console.log(error);
-        return null
+        // console.log('currentUser', currentUser);
+        return {
+            ...currentUser,
+            createdAt: currentUser.createdAt.toISOString(),
+            updatedAt: currentUser.updatedAt.toISOString(),
+        };
+    } catch (error) {
+        return null;
     }
 }
+
